@@ -1,0 +1,151 @@
+<div class="container-fluid py-4">
+
+  <!-- Page Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="fw-bold mb-0">User Management</h2>
+    </div>
+    <div class="d-flex gap-2">
+      <button id="toggleFilters" class="btn btn-outline-primary shadow-sm">
+        <i class="bi bi-funnel"></i> Filters
+      </button>
+      <a href="/users/add" class="btn btn-primary shadow-sm">
+        <i class="bi bi-plus-circle me-1"></i> Add User
+      </a>
+    </div>
+  </div>
+
+  <!-- Filters (Hidden by Default) -->
+  <div id="filterCard" class="card shadow-sm border-0 mb-4" style="display: none;">
+    <div class="card-body">
+      <form id="filterForm" class="row g-3">
+        <div class="col-md-4">
+          <input type="text" id="filterName" class="form-control" placeholder="Search by Name or Email">
+        </div>
+        <div class="col-md-3">
+          <select id="filterRole" class="form-select">
+            <option value="">All Roles</option>
+            <option value="Admin">Admin</option>
+            <option value="Manager">Manager</option>
+            <option value="User">User</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <button type="button" id="resetFilters" class="btn btn-outline-secondary">
+            <i class="bi bi-x-circle"></i> Reset
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- User List -->
+  <div class="card shadow-sm border-0">
+    <div class="card-body">
+      <div class="table-responsive">
+        <table id="userTable" class="table table-hover align-middle">
+          <thead class="table-light">
+            <tr>
+              <th style="width: 60px;">#</th>
+              <th>Name</th>
+              <th>Email</th>
+              <th style="width: 120px;">Role</th>
+              <th style="width: 150px;" class="text-center">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (users && users.length > 0) { %>
+              <% users.forEach((user, index) => { %>
+                <tr>
+                  <td><%= index + 1 %></td>
+                  <td><%= user.name %></td>
+                  <td><%= user.email %></td>
+                  <td><%= user.role %></td>
+                  <td class="text-center">
+                    <!-- View -->
+                    <a href="/users/<%= user._id %>/view" class="btn btn-sm btn-info me-1">
+                      <i class="bi bi-eye"></i>
+                    </a>
+                    <!-- Edit -->
+                    <a href="/users/<%= user._id %>/edit" class="btn btn-sm btn-warning me-1">
+                      <i class="bi bi-pencil-square"></i>
+                    </a>
+                    <!-- Delete -->
+                    <form action="/users/<%= user._id %>/delete?_method=DELETE" method="POST" class="d-inline">
+                      <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?')">
+                        <i class="bi bi-trash"></i>
+                      </button>
+                    </form>
+                  </td>
+                </tr>
+              <% }) %>
+            <% } else { %>
+              <tr>
+                <td colspan="5" class="text-center">No users found</td>
+              </tr>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ✅ Load JS files at the end -->
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
+
+<script>
+  $(function () {
+    console.log("✅ jQuery ready");  
+
+    // Toggle filter card
+    $('#toggleFilters').on('click', function () {
+      $('#filterCard').slideToggle(300);
+      $(this).find('i').toggleClass('bi-funnel bi-funnel-fill');
+    });
+
+    // Initialize DataTable
+    const table = $('#userTable').DataTable({
+      paging: true,
+      ordering: true,
+      searching: false,
+      lengthMenu: [5, 10, 25, 50],
+      pageLength: 10
+    });
+
+    // Filter change handler
+    $(document).on('keyup change', '#filterName, #filterRole', function () {
+      console.log("🔍 Filter triggered");
+      const name = $('#filterName').val();
+      const role = $('#filterRole').val();
+
+      $.ajax({
+        url: `/users?name=${encodeURIComponent(name)}&role=${encodeURIComponent(role)}`,
+        type: 'GET',
+        success: function (html) {
+          const newBody = $(html).find('#userTable tbody').html();
+          $('#userTable tbody').html(newBody);
+        },
+        error: function (err) {
+          console.error('❌ Filter error:', err);
+        }
+      });
+    });
+
+    // Reset filters
+    $('#resetFilters').on('click', function () {
+      $('#filterName').val('');
+      $('#filterRole').val('');
+      $.ajax({
+        url: `/users`,
+        type: 'GET',
+        success: function (html) {
+          const newBody = $(html).find('#userTable tbody').html();
+          $('#userTable tbody').html(newBody);
+        }
+      });
+    });
+  });
+</script>
