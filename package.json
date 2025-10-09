@@ -1,5 +1,5 @@
 {
-  "name": "fameX",
+  "name": "Chit Fund",
   "version": "1.0.0",
   "description": "",
   "main": "main.js",
@@ -13,14 +13,12 @@
   "license": "ISC",
   "dependencies": {
     "admin-lte": "^4.0.0-rc3",
-    "date-fns": "^4.1.0",
-    "dotenv": "^17.2.3",
+    "date-fns": "^4.1.0",    
     "ejs": "^3.1.10",
     "express": "^5.1.0",
     "express-ejs-layouts": "^2.5.1",
     "express-validator": "^7.2.1",
-    "method-override": "^3.0.0",
-    "mongoose": "^8.18.2"
+    "method-override": "^3.0.0"    
   },
   "devDependencies": {
     "nodemon": "^3.1.10"
